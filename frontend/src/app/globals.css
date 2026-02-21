@@ -220,3 +220,15 @@ body {
   color: var(--primary);
   border-color: rgba(0, 198, 176, 0.2);
 }
+
+/* ─── Hide Scrollbar Utility ───────────────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}

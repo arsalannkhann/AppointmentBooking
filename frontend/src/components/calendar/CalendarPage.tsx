@@ -104,9 +104,9 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
         {/* Calendar grid */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto no-scrollbar">
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <div className="spinner" />
@@ -256,11 +256,9 @@ export default function CalendarPage() {
         {/* Detail panel */}
         {selected && (
           <div
-            className="flex-shrink-0 overflow-y-auto"
+            className="flex-shrink-0 overflow-y-auto w-full md:w-[280px] border-t md:border-t-0 md:border-l border-[var(--border)] max-h-[50vh] md:max-h-none"
             style={{
-              width: 280,
               background: 'var(--card)',
-              borderLeft: '1px solid var(--border)',
             }}
           >
             <div className="p-4">

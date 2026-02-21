@@ -26,8 +26,8 @@ from sqlalchemy.orm import DeclarativeBase
 # ── Build connection URL ───────────────────────────────────────
 
 DRIVER      = os.getenv("DB_DRIVER", "postgresql+asyncpg")
-DB_NAME     = os.getenv("DB_NAME",   "bronn")
-DB_USER     = os.getenv("DB_USER",   "meddent_app")
+DB_NAME     = os.getenv("DB_NAME",   "postgres")
+DB_USER     = os.getenv("DB_USER",   "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 ENCODED_PASSWORD = urllib.parse.quote_plus(DB_PASSWORD) if DB_PASSWORD else ""
 DB_HOST     = os.getenv("DB_HOST",   "127.0.0.1")
