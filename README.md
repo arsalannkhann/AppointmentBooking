@@ -193,6 +193,14 @@ chmod +x infrastructure/deploy.sh
   🗄  DB:       salesos-473014:us-central1:dentalbridge
 ```
 
+### Database IP Details
+
+- **Connection Name:** `salesos-473014:us-central1:dentalbridge`
+- **Private IP Connectivity:** Disabled
+- **Public IP Connectivity:** Enabled
+- **Public IP Address:** `34.134.104.207`
+- **Outgoing IP Address:** `34.59.128.189`
+
 ### Redeployment (CI/CD)
 
 ```bash
@@ -257,9 +265,14 @@ chmod +x cloud-sql-proxy
 # Run proxy (keep running in background)
 ./cloud-sql-proxy salesos-473014:us-central1:dentalbridge
 
-# Connect with psql
+# Connect with psql using the app's secure generated password:
 PGPASSWORD=$(gcloud secrets versions access latest --secret=meddent-db-password) \
   psql -h 127.0.0.1 -U meddent_app -d bronn
+
+# OR Connect if you reset the password via the Google Cloud Console UI:
+# (The console UI resets the default 'postgres' user, not the app user!)
+psql -h 127.0.0.1 -U postgres -d postgres
+# (Enter your custom password when prompted)
 ```
 
 ---
