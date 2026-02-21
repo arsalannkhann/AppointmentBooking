@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/arsalannkhann/AppointmentBooking/main/frontend/public/favicon.ico" alt="Logo" width="80" height="80">
-  <h1 align="center">MedDent Appointment Booking System</h1>
+
+  <h1 align="center">Appointment Booking System</h1>
   <p align="center">
     A production-grade dental clinic management platform featuring an AI-driven booking assistant, real-time doctor availability, seamless scheduling, and enterprise architecture natively deployed on Google Cloud.
   </p>
