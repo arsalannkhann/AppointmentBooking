@@ -47,6 +47,57 @@ flowchart TB
 
 ---
 
+## 🤖 AI Appointment Booking Flow
+
+The core of MedDent is its autonomous AI booking engine. This sequence diagram illustrates the lifecycle of a patient conversation from the initial symptom description to a committed appointment in the PostgreSQL database.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Patient (UI)
+    participant F as Next.js Frontend
+    participant B as FastAPI Backend
+    participant DB as Cloud SQL (Postgres)
+    participant AI as Gemini AI (LLM)
+
+    U->>F: Sends message (e.g., "I have tooth pain...")
+    F->>B: POST /api/chat (Message history)
+    
+    rect rgb(244, 248, 252)
+        Note over B,DB: Context Assembly
+        B->>DB: Lookup/Create ChatSession
+        B->>DB: Fetch 20 recent appointments (Schedule Context)
+        B->>B: Build complex System Prompt (Inject Clinics, Doctors, Procedures)
+    end
+    
+    B->>AI: Send system prompt + user message history
+    
+    rect rgb(250, 250, 250)
+        Note over AI,B: AI Reasoning & Output
+        AI-->>B: Return reasoning + conversational response
+        Note right of AI: AI maps symptoms to procedure,<br/>finds available doctor/room,<br/>formats JSON [BOOKING_REQUEST]
+    end
+    
+    B->>B: Parse JSON & Strip tags from text response
+    B->>DB: Save ChatMessages (User & Assistant)
+    B-->>F: Return Clean Text + BookingReq JSON Object
+    
+    rect rgb(240, 253, 244)
+        Note over F,U: User Confirmation
+        F->>U: Render AI response + BookingConfirmCard UI
+        U->>F: Reviews constraints & clicks "Confirm"
+    end
+    
+    F->>B: POST /api/chat/confirm (Booking Payload)
+    B->>B: Validate room physical capabilities & time slot
+    B->>DB: Insert new Appointment record
+    DB-->>B: DB Commit Success
+    B-->>F: Return confirmed Appointment data
+    F->>U: UI Redirects to Calendar View Display
+```
+
+---
+
 ## 📂 Project Structure
 
 A clean monolith repository separating frontend interfaces from backend logic. 
