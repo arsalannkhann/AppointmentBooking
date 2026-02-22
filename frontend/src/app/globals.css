@@ -9,16 +9,23 @@
   --card2: #F1F5F9;
   --border: #E2E8F0;
   --border2: #CBD5E1;
-  --primary: #0D9488;
-  --primary-dim: rgba(13, 148, 136, 0.1);
-  --primary-glow: rgba(13, 148, 136, 0.25);
-  --amber: #D97706;
-  --red: #DC2626;
-  --purple: #7C3AED;
-  --green: #059669;
+  --primary: #6366F1;
+  --primary-dim: rgba(99, 102, 241, 0.1);
+  --primary-glow: rgba(99, 102, 241, 0.25);
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --purple: #8B5CF6;
+  --green: #10B981;
   --text: #0F172A;
   --text2: #475569;
   --text3: #94A3B8;
+
+  --sidebar-bg: #1F293B;
+  --sidebar-border: #334155;
+  --sidebar-text: #F8FAFC;
+  --sidebar-text2: #94A3B8;
+  --sidebar-hover: #334155;
+  --sidebar-active: #0F172A;
 }
 
 /* ─── Base ────────────────────────────────────────────────── */
@@ -203,7 +210,7 @@ body {
   border-radius: 8px;
   font-size: 13.5px;
   font-weight: 500;
-  color: var(--text2);
+  color: var(--sidebar-text2);
   cursor: pointer;
   transition: all 0.15s;
   border: 1px solid transparent;
@@ -211,14 +218,14 @@ body {
 }
 
 .nav-item:hover {
-  background: var(--card2);
-  color: var(--text);
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
 }
 
 .nav-item.active {
-  background: var(--primary-dim);
-  color: var(--primary);
-  border-color: rgba(0, 198, 176, 0.2);
+  background: var(--sidebar-active);
+  color: var(--sidebar-text);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ─── Hide Scrollbar Utility ───────────────────────────── */

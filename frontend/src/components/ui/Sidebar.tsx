@@ -26,21 +26,21 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
 
   return (
     <aside
-      style={{ background: 'var(--card)' }}
-      className="w-full md:w-60 flex-shrink-0 flex flex-col h-auto md:h-full border-b md:border-b-0 md:border-r border-[var(--border)] z-20 shadow-sm md:shadow-none"
+      style={{ background: 'var(--sidebar-bg)' }}
+      className="w-full md:w-60 flex-shrink-0 flex flex-col h-auto md:h-full border-b md:border-b-0 md:border-r border-[var(--sidebar-border)] z-20 shadow-sm md:shadow-none"
     >
       {/* Logo */}
-      <div className="flex items-center justify-between px-4 py-3 md:px-5 md:py-5 border-b border-[var(--border)]">
+      <div className="flex items-center justify-between px-4 py-3 md:px-5 md:py-5 border-b" style={{ borderColor: 'var(--sidebar-border)' }}>
         <div className="flex items-center gap-2 md:gap-3">
           <span style={{ color: 'var(--primary)', fontSize: 22 }}>⚕</span>
           <div>
             <div
               className="font-serif font-semibold leading-tight"
-              style={{ color: 'var(--primary)', fontSize: 17, letterSpacing: -0.3 }}
+              style={{ color: 'var(--sidebar-text)', fontSize: 17, letterSpacing: -0.3 }}
             >
               MedDent
             </div>
-            <div className="hidden md:block leading-tight" style={{ color: 'var(--text3)', fontSize: 11 }}>Booking System</div>
+            <div className="hidden md:block leading-tight" style={{ color: 'var(--sidebar-text2)', fontSize: 11 }}>Booking System</div>
           </div>
         </div>
       </div>
@@ -61,8 +61,8 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
 
       {/* Stats */}
       {stats && (
-        <div className="hidden md:flex p-4 flex-col gap-3 border-t border-[var(--border)] mt-auto">
-          <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'var(--font-mono)' }}>
+        <div className="hidden md:flex p-4 flex-col gap-3 border-t mt-auto" style={{ borderColor: 'var(--sidebar-border)' }}>
+          <div style={{ fontSize: 10, color: 'var(--sidebar-text2)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'var(--font-mono)' }}>
             Live Stats
           </div>
           {[
@@ -71,12 +71,12 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
             { label: 'Total', value: stats.total },
           ].map(s => (
             <div key={s.label} className="flex justify-between items-center">
-              <span style={{ fontSize: 12, color: 'var(--text2)' }}>{s.label}</span>
+              <span style={{ fontSize: 12, color: 'var(--sidebar-text2)' }}>{s.label}</span>
               <span
                 style={{
-                  background: 'var(--primary-dim)',
-                  color: 'var(--primary)',
-                  border: '1px solid rgba(13,148,136,0.2)',
+                  background: 'var(--sidebar-active)',
+                  color: 'var(--sidebar-text)',
+                  border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: 6,
                   padding: '1px 8px',
                   fontSize: 12,
@@ -93,7 +93,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
       {/* Version */}
       <div
         className="hidden md:block px-4 py-3"
-        style={{ borderTop: '1px solid var(--border)', fontSize: 10, color: 'var(--text3)', fontFamily: 'var(--font-mono)' }}
+        style={{ borderTop: '1px solid var(--sidebar-border)', fontSize: 10, color: 'var(--sidebar-text2)', fontFamily: 'var(--font-mono)' }}
       >
         v2.0.0 · Cloud Run + Cloud SQL
       </div>
