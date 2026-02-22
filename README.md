@@ -20,18 +20,25 @@ MedDent is built on modern, scalable cloud-native principles, employing a decoup
 
 ```mermaid
 flowchart TB
-    User([User Device]) -->|HTTPS| Frontend
-
-    subgraph "Google Cloud Platform"
-        Frontend[Next.js Frontend\nCloud Run] -->|HTTPS REST| Backend
-        Backend[FastAPI Backend\nCloud Run] -- "Unix Socket" --> Database[(Cloud SQL PostgreSQL 16\nPrivate IP)]
-        Backend -. "Fetches keys" .-> Secrets[Secret Manager]
+    User([User Device])
+    
+    subgraph GCP [Google Cloud Platform]
+        Frontend[Next.js Frontend<br/>Cloud Run]
+        Backend[FastAPI Backend<br/>Cloud Run]
+        Database[(Cloud SQL PostgreSQL 16<br/>Private IP)]
+        Secrets[Secret Manager]
     end
     
-    Backend -->|API Request| AI((Anthropic / Gemini AI))
+    AI((Anthropic / Gemini AI))
 
-    classDef gcp fill:#e3f2fd,stroke:#4285f4,stroke-width:2px;
-    classDef target fill:#e8f5e9,stroke:#4caf50,stroke-width:2px;
+    User -->|HTTPS| Frontend
+    Frontend -->|HTTPS REST| Backend
+    Backend -->|Unix Socket| Database
+    Backend -.->|Fetches keys| Secrets
+    Backend -->|API Request| AI
+
+    classDef gcp fill:#e3f2fd,stroke:#4285f4,stroke-width:2px,color:#000;
+    classDef target fill:#e8f5e9,stroke:#4caf50,stroke-width:2px,color:#000;
     class Frontend,Backend,Database,Secrets gcp;
     class AI target;
 ```
@@ -63,30 +70,23 @@ sequenceDiagram
     U->>F: Sends message (e.g., "I have tooth pain...")
     F->>B: POST /api/chat (Message history)
     
-    rect rgb(244, 248, 252)
-        Note over B,DB: Context Assembly
-        B->>DB: Lookup/Create ChatSession
-        B->>DB: Fetch 20 recent appointments (Schedule Context)
-        B->>B: Build complex System Prompt (Inject Clinics, Doctors, Procedures)
-    end
+    Note over B,DB: Context Assembly
+    B->>DB: Lookup/Create ChatSession
+    B->>DB: Fetch 20 recent appointments (Schedule Context)
+    B->>B: Build complex System Prompt (Inject Clinics, Doctors, Procedures)
     
     B->>AI: Send system prompt + user message history
     
-    rect rgb(250, 250, 250)
-        Note over AI,B: AI Reasoning & Output
-        AI-->>B: Return reasoning + conversational response
-        Note right of AI: AI maps symptoms to procedure,<br/>finds available doctor/room,<br/>formats JSON [BOOKING_REQUEST]
-    end
+    Note right of AI: AI Reasoning & Output<br/>maps symptoms to procedure,<br/>finds available doctor/room,<br/>formats JSON [BOOKING_REQUEST]
+    AI-->>B: Return reasoning + conversational response
     
     B->>B: Parse JSON & Strip tags from text response
     B->>DB: Save ChatMessages (User & Assistant)
     B-->>F: Return Clean Text + BookingReq JSON Object
     
-    rect rgb(240, 253, 244)
-        Note over F,U: User Confirmation
-        F->>U: Render AI response + BookingConfirmCard UI
-        U->>F: Reviews constraints & clicks "Confirm"
-    end
+    Note over F,U: User Confirmation
+    F->>U: Render AI response + BookingConfirmCard UI
+    U->>F: Reviews constraints & clicks "Confirm"
     
     F->>B: POST /api/chat/confirm (Booking Payload)
     B->>B: Validate room physical capabilities & time slot
