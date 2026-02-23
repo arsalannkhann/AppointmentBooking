@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api-client';
 import type { Appointment, Clinic, Doctor, Procedure, AppointmentStats } from '@/types';
 
@@ -22,6 +22,25 @@ export default function AdminPage() {
     procedure_id: '', clinic_id: '', date: '', start_time: '09:00',
     primary_doctor_id: '', notes: '',
   });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportJson = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) throw new Error("JSON must be an array of appointments.");
+
+      const res = await api.appointments.bulkImport(parsed);
+      alert(`Imported ${res.imported} appointments successfully!`);
+      loadAll();
+    } catch (err: any) {
+      alert(`Import failed: ${err.message}`);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   async function loadAll() {
     setLoading(true);
@@ -287,8 +306,28 @@ export default function AdminPage() {
             {tab === 'json' && (
               <div className="flex flex-col gap-6">
                 <div className="rounded-xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
-                  <h2 className="font-serif font-semibold text-base mb-2">Raw Data Export</h2>
-                  <p className="text-xs mb-4" style={{ color: 'var(--text2)' }}>Complete dump of all appointment records.</p>
+                  <div className="flex justify-between items-center mb-2">
+                    <div>
+                      <h2 className="font-serif font-semibold text-base mb-1">Raw Data Export & Import</h2>
+                      <p className="text-xs" style={{ color: 'var(--text2)' }}>Dump of all appointment records or bulk seed new JSON.</p>
+                    </div>
+                    <div>
+                      <input
+                        type="file"
+                        accept=".json"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleImportJson}
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition-all hover:brightness-110"
+                        style={{ background: 'var(--primary)', color: 'white' }}
+                      >
+                        📥 Import JSON
+                      </button>
+                    </div>
+                  </div>
                   <pre
                     className="p-4 rounded-lg overflow-auto"
                     style={{ background: 'var(--card2)', color: 'var(--text)', fontSize: 11, fontFamily: 'var(--font-mono)', border: '1px solid var(--border)' }}
