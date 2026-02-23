@@ -144,54 +144,97 @@ async def cancel_appointment(appt_id: str, db: AsyncSession = Depends(get_db)):
 @router.post("/bulk", response_model=dict, status_code=201)
 async def bulk_import_appointments(body: List[dict], db: AsyncSession = Depends(get_db)):
     from datetime import datetime
+    from app.routers.slots import _has_conflict, time_to_mins
+    
+    # Pre-fetch existing bookings for collision detection
+    dates = list(set([item.get("date") for item in body if item.get("date")]))
+    if dates:
+        existing_rows = await db.execute(
+            select(Appointment).where(Appointment.date.in_(dates), Appointment.status != "cancelled")
+        )
+        booked_appts = [
+            {
+                "date": a.date,
+                "clinic_id": a.clinic_id,
+                "room_id": a.room_id,
+                "start_time": a.start_time,
+                "duration_mins": a.duration_mins,
+                "doctor_ids": a.doctor_ids,
+            }
+            for a in existing_rows.scalars().all()
+        ]
+    else:
+        booked_appts = []
+
     imported = 0
+    skipped = 0
+    
     for item in body:
-        # Check if exists
         item_id = item.get("id")
         if item_id:
             existing = await db.get(Appointment, item_id)
-            if existing:
+            if existing: # Ignore if UUID is already in DB
+                skipped += 1
                 continue
         
         doctor_ids = item.get("doctor_ids", [])
-        if isinstance(doctor_ids, list):
-            doctor_ids = json.dumps(doctor_ids)
+        start_time = item.get("start_time")
+        dur = item.get("duration_mins", 30)
+        clinic_id = item.get("clinic_id")
+        room_id = item.get("room_id")
+        date_str = item.get("date")
 
-        # Convert created_at properly if exists
+        # Live clash computation
+        if date_str and start_time and clinic_id and room_id:
+            start_m = time_to_mins(start_time)
+            day_booked = [b for b in booked_appts if b["date"] == date_str]
+            if _has_conflict(start_m, dur, clinic_id, room_id, doctor_ids, day_booked):
+                skipped += 1
+                continue
+
+        # Format doctor IDs to DB JSON
+        doc_json = json.dumps(doctor_ids) if isinstance(doctor_ids, list) else doctor_ids
+
+        # Parse legacy string dates if available
         created_at_dt = None
         created_at_str = item.get("created_at")
         if created_at_str:
-            try:
-                created_at_dt = datetime.fromisoformat(created_at_str)
-            except ValueError:
-                pass
+            try: created_at_dt = datetime.fromisoformat(created_at_str)
+            except ValueError: pass
 
         appt = Appointment(
-            id=item_id, # Can be None, SQL will auto-generate if missing. But models.py uses UUID default.
+            id=item_id,
             procedure_id=item.get("procedure_id"),
             patient_name=item.get("patient_name"),
             patient_phone=item.get("patient_phone"),
             patient_email=item.get("patient_email"),
-            clinic_id=item.get("clinic_id"),
-            room_id=item.get("room_id"),
-            date=item.get("date"),
-            start_time=item.get("start_time"),
-            duration_mins=item.get("duration_mins", 30),
-            doctor_ids=doctor_ids,
+            clinic_id=clinic_id,
+            room_id=room_id,
+            date=date_str,
+            start_time=start_time,
+            duration_mins=dur,
+            doctor_ids=doc_json,
             primary_doctor_id=item.get("primary_doctor_id"),
             notes=item.get("notes"),
             status=item.get("status", "confirmed")
         )
         if created_at_dt:
             appt.created_at = created_at_dt
-        
-        # models.py usually generates a UUID if id is missing, so if item_id is given we can assign it
-        if item_id:
-            appt.id = item_id
+
+        # Append to our local validation cache so inner-array items clash against each other!
+        booked_appts.append({
+            "date": date_str,
+            "clinic_id": clinic_id,
+            "room_id": room_id,
+            "start_time": start_time,
+            "duration_mins": dur,
+            "doctor_ids": doc_json
+        })
 
         db.add(appt)
         imported += 1
     
     await db.commit()
-    return {"ok": True, "imported": imported}
+    return {"ok": True, "imported": imported, "skipped": skipped}
+
 

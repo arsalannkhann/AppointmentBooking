@@ -64,7 +64,7 @@ export const api = {
       apiFetch<{ ok: boolean }>(`/api/appointments/${id}`, { method: 'DELETE' }),
 
     bulkImport: (appts: any[]) =>
-      apiFetch<{ ok: boolean; imported: number }>('/api/appointments/bulk', {
+      apiFetch<{ ok: boolean; imported: number; skipped: number }>('/api/appointments/bulk', {
         method: 'POST',
         body: JSON.stringify(appts),
       }),

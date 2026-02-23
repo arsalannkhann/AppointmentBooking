@@ -34,7 +34,11 @@ export default function AdminPage() {
       if (!Array.isArray(parsed)) throw new Error("JSON must be an array of appointments.");
 
       const res = await api.appointments.bulkImport(parsed);
-      alert(`Imported ${res.imported} appointments successfully!`);
+      alert(
+        `Import complete!\n` +
+        `✅ Imported: ${res.imported}\n` +
+        `⚠️ Skipped/Conflicts: ${res.skipped}`
+      );
       loadAll();
     } catch (err: any) {
       alert(`Import failed: ${err.message}`);
