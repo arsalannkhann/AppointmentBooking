@@ -162,7 +162,7 @@ export default function CalendarPage() {
                   const colors = ['#10B981', '#60A5FA', '#F59E0B', '#34D399', '#8B5CF6', '#F87171'];
                   const color = colors[i % colors.length];
                   return (
-                    <div key={room.id} className="flex-1 min-w-[180px] border-r border-slate-100 relative h-14 flex flex-col items-center justify-center">
+                    <div key={`${room.clinicId}-${room.id}`} className="flex-1 min-w-[180px] border-r border-slate-100 relative h-14 flex flex-col items-center justify-center">
                       <div className="absolute top-0 left-0 right-0 h-[4px]" style={{ background: color }} />
                       <span className="text-[13px] font-bold text-slate-700">{room.name}</span>
                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{room.clinicName}</span>
@@ -200,9 +200,9 @@ export default function CalendarPage() {
 
                   {/* Room Columns & Appointments */}
                   {rooms.map((room) => (
-                    <div key={room.id} className="flex-1 min-w-[180px] border-r border-slate-100 relative">
+                    <div key={`${room.clinicId}-${room.id}`} className="flex-1 min-w-[180px] border-r border-slate-100 relative">
                       {/* Appointments for this room */}
-                      {todayAppts.filter(a => a.room_id === room.id).map(appt => {
+                      {todayAppts.filter(a => a.room_id === room.id && a.clinic_id === room.clinicId).map(appt => {
                         const startMins = timeToMins(appt.start_time);
                         const offsetMins = startMins - (HOUR_START * 60);
                         const topPx = (offsetMins / 15) * ROW_H;
